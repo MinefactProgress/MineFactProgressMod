@@ -24,9 +24,9 @@ public class ClientChatReceived {
                 int count = Integer.parseInt(countStr);
                 MineFactProgressMod.LOGGER.info(count);
                 setProjects(count);
-            } catch (NumberFormatException | IOException ex) {
+            } catch (IOException ex) {
                 ex.printStackTrace();
-            }
+            } catch (NumberFormatException ignored) {}
         }
     }
 
