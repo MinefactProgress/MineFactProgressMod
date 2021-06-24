@@ -120,23 +120,26 @@ public class DiscordWebhook {
                 }
 
                 jsonEmbed.put("fields", jsonFields.toArray());
+                embedObjects.add(jsonEmbed);
             }
 
-            URL url = new URL(this.url);
-            HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-            connection.addRequestProperty("Content-Type", "application/json");
-            connection.addRequestProperty("User-Agent", "Java-DiscordWebhook-BY-Gelox_");
-            connection.setDoOutput(true);
-            connection.setRequestMethod("POST");
-
-            OutputStream stream = connection.getOutputStream();
-            stream.write(json.toString().getBytes());
-            stream.flush();
-            stream.close();
-
-            connection.getInputStream().close();
-            connection.disconnect();
+            json.put("embeds", embedObjects.toArray());
         }
+
+        URL url = new URL(this.url);
+        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+        connection.addRequestProperty("Content-Type", "application/json");
+        connection.addRequestProperty("User-Agent", "Java-DiscordWebhook-BY-Gelox_");
+        connection.setDoOutput(true);
+        connection.setRequestMethod("POST");
+
+        OutputStream stream = connection.getOutputStream();
+        stream.write(json.toString().getBytes());
+        stream.flush();
+        stream.close();
+
+        connection.getInputStream().close();
+        connection.disconnect();
     }
 
     public static class EmbedObject {
@@ -345,7 +348,7 @@ public class DiscordWebhook {
                 } else if (val instanceof Boolean) {
                     builder.append(val);
                 } else if (val instanceof JSONObject) {
-                    builder.append(val.toString());
+                    builder.append(val);
                 } else if (val.getClass().isArray()) {
                     builder.append("[");
                     int len = Array.getLength(val);
