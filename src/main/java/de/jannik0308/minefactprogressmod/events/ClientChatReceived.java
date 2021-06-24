@@ -9,7 +9,8 @@ public class ClientChatReceived {
     public void onCommand(ClientChatReceivedEvent e) {
         String msg = e.getMessage().getString();
         if(msg.startsWith("Total Finished Projects: ")) {
-            System.out.println("Debug: Message starts with right words");
+            System.out.println("Message starts with right words");
+            System.out.println(msg.split(":")[1]);
         }
     }
 }
