@@ -27,7 +27,7 @@ public class MineFactProgressMod {
     public static final String MOD_ID = "minefactprogressmod";
 
     // Directly reference a log4j logger.
-    private static final Logger LOGGER = LogManager.getLogger();
+    public static final Logger LOGGER = LogManager.getLogger();
 
     public MineFactProgressMod() {
         // Register the setup method for modloading
