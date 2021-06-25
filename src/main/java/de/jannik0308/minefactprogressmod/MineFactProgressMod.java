@@ -2,6 +2,7 @@ package de.jannik0308.minefactprogressmod;
 
 import de.jannik0308.minefactprogressmod.events.ClientChatReceived;
 import de.jannik0308.minefactprogressmod.events.PlayerExecuteCommandEvent;
+import de.jannik0308.minefactprogressmod.utils.chat.ChatColor;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraftforge.common.MinecraftForge;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 public class MineFactProgressMod {
 
     public static final String MOD_ID = "minefactprogressmod";
+    public static final String PREFIX = ChatColor.GRAY + "[" + ChatColor.AQUA + "MineFact Progress" + ChatColor.GRAY + "] " + ChatColor.RESET;
 
     // Directly reference a log4j logger.
     public static final Logger LOGGER = LogManager.getLogger();
