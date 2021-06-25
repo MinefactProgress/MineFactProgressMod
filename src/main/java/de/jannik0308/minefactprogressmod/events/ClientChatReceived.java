@@ -69,6 +69,6 @@ public class ClientChatReceived {
             .setTitle("Current Project Count")
             .setDescription("/projects list got executed and the current project count is **" + projects + "**!")
             .setColor(Color.CYAN));
-        //webhook.execute();
+        webhook.execute();
     }
 }
