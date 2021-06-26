@@ -49,6 +49,10 @@ public class MineFactProgressMod {
         // some preinit code
         LOGGER.info("HELLO FROM PREINIT");
         LOGGER.info("DIRT BLOCK >> {}", Blocks.DIRT.getRegistryName());
+
+        //Register Events
+        MinecraftForge.EVENT_BUS.register(new PlayerExecuteCommandEvent());
+        MinecraftForge.EVENT_BUS.register(new ClientChatReceived());
     }
 
     private void doClientStuff(final FMLClientSetupEvent event) {
@@ -76,10 +80,6 @@ public class MineFactProgressMod {
     public void onServerStarting(FMLServerStartingEvent event) {
         // do something when the server starts
         LOGGER.info("HELLO from server starting");
-
-        //Register Events
-        MinecraftForge.EVENT_BUS.register(new PlayerExecuteCommandEvent());
-        MinecraftForge.EVENT_BUS.register(new ClientChatReceived());
     }
 
     // You can use EventBusSubscriber to automatically subscribe events on the contained class (this is subscribing to the MOD
