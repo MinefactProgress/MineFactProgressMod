@@ -1,4 +1,4 @@
-package de.jannik0308.minefactprogressmod.utils;
+package de.jannik0308.minefactprogressmod.utils.api;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.awt.*;
