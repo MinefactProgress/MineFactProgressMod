@@ -1,4 +1,4 @@
-package de.jannik0308.minefactprogressmod.utils;
+package de.jannik0308.minefactprogressmod.utils.api;
 
 import java.lang.reflect.Array;
 import java.util.HashMap;
