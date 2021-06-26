@@ -129,7 +129,7 @@ public class DiscordWebhook {
         URL url = new URL(this.url);
         HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
         connection.addRequestProperty("Content-Type", "application/json");
-        connection.addRequestProperty("User-Agent", "Java-DiscordWebhook-BY-Gelox_");
+        connection.addRequestProperty("User-Agent", "Minefact-NewYork-Progress");
         connection.setDoOutput(true);
         connection.setRequestMethod("POST");
 
