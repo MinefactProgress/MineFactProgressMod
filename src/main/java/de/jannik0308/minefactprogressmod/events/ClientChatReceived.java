@@ -1,8 +1,9 @@
 package de.jannik0308.minefactprogressmod.events;
 
 import de.jannik0308.minefactprogressmod.MineFactProgressMod;
-import de.jannik0308.minefactprogressmod.utils.DiscordWebhook;
-import de.jannik0308.minefactprogressmod.utils.JSONBuilder;
+import de.jannik0308.minefactprogressmod.utils.api.APIRequestHandler;
+import de.jannik0308.minefactprogressmod.utils.api.DiscordWebhook;
+import de.jannik0308.minefactprogressmod.utils.api.JSONBuilder;
 import de.jannik0308.minefactprogressmod.utils.chat.ChatColor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
@@ -30,47 +31,38 @@ public class ClientChatReceived {
             String countStr = msg.replace("Total Finished Projects: ", "");
             try {
                 int count = Integer.parseInt(countStr);
-                MineFactProgressMod.LOGGER.info(count);
-                if(p != null) {
-                    ITextComponent text = new StringTextComponent(MineFactProgressMod.PREFIX + ChatColor.GRAY + "Trying to set Projects to " + ChatColor.YELLOW + count);
-                    p.sendMessage(text, Util.DUMMY_UUID);
-                }
-                setProjects(count, p);
-            } catch (IOException ex) {
-                ex.printStackTrace();
+                setProjectsAsync(count, p);
             } catch (NumberFormatException ignored) {}
         }
     }
 
-    private void setProjects(int projects, ClientPlayerEntity p) throws IOException {
-        //Build JSON
-        JSONBuilder json = new JSONBuilder();
-        json.put("token", "dev");
-        json.put("projects", projects);
-
+    private void setProjectsAsync(int projects, ClientPlayerEntity p) {
         //POST Request to API
-        URL url = new URL("https://gefsn.sse.codesandbox.io/api/projects");
-        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-        connection.addRequestProperty("Content-Type", "application/json");
-        connection.setDoOutput(true);
-        connection.setRequestMethod("POST");
+        Thread thread = new Thread(() -> {
+            //Build JSON
+            JSONBuilder json = new JSONBuilder();
+            json.put("token", "dev");
+            json.put("projects", projects);
 
-        OutputStream stream = connection.getOutputStream();
-        stream.write(json.toString().getBytes());
-        stream.flush();
-        stream.close();
+            //API Request
+            APIRequestHandler.doPOSTRequest("https://gefsn.sse.codesandbox.io/api/projects", json);
+            try {
+                //Send Discord Webhook
+                DiscordWebhook webhook = new DiscordWebhook("https://discord.com/api/webhooks/857708669571170344/-KhCDHtUp6ECZAtumEjsUiUlf6sg8DsmYCq_dbM047ifRpENjOwroOPGWvzhh8jGVEYn");
+                webhook.addEmbed(new DiscordWebhook.EmbedObject()
+                        .setTitle("Current Project Count")
+                        .setDescription("/projects list got executed and the current project count is **" + projects + "**!")
+                        .setColor(Color.CYAN));
+                webhook.execute();
 
-        connection.getInputStream().close();
-        connection.disconnect();
-        ITextComponent text = new StringTextComponent(MineFactProgressMod.PREFIX + ChatColor.GRAY + "Projects were set");
-        p.sendMessage(text, Util.DUMMY_UUID);
-
-        //Send Discord Webhook
-        DiscordWebhook webhook = new DiscordWebhook("https://discord.com/api/webhooks/857708669571170344/-KhCDHtUp6ECZAtumEjsUiUlf6sg8DsmYCq_dbM047ifRpENjOwroOPGWvzhh8jGVEYn");
-        webhook.addEmbed(new DiscordWebhook.EmbedObject()
-            .setTitle("Current Project Count")
-            .setDescription("/projects list got executed and the current project count is **" + projects + "**!")
-            .setColor(Color.CYAN));
-        webhook.execute();
+                if(p != null) {
+                    ITextComponent text = new StringTextComponent(MineFactProgressMod.PREFIX + ChatColor.GRAY + "Projects set to " + ChatColor.YELLOW + projects);
+                    p.sendMessage(text, Util.DUMMY_UUID);
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
+        thread.start();
     }
 }
