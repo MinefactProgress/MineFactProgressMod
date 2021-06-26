@@ -32,17 +32,17 @@ public class ClientChatReceived {
                 int count = Integer.parseInt(countStr);
                 MineFactProgressMod.LOGGER.info(count);
                 if(p != null) {
-                    ITextComponent text = new StringTextComponent(MineFactProgressMod.PREFIX + ChatColor.GRAY + "Projects set to " + ChatColor.YELLOW + count);
+                    ITextComponent text = new StringTextComponent(MineFactProgressMod.PREFIX + ChatColor.GRAY + "Trying to set Projects to " + ChatColor.YELLOW + count);
                     p.sendMessage(text, Util.DUMMY_UUID);
                 }
-                setProjects(count);
+                setProjects(count, p);
             } catch (IOException ex) {
                 ex.printStackTrace();
             } catch (NumberFormatException ignored) {}
         }
     }
 
-    private void setProjects(int projects) throws IOException {
+    private void setProjects(int projects, ClientPlayerEntity p) throws IOException {
         //Build JSON
         JSONBuilder json = new JSONBuilder();
         json.put("token", "dev");
@@ -62,6 +62,8 @@ public class ClientChatReceived {
 
         connection.getInputStream().close();
         connection.disconnect();
+        ITextComponent text = new StringTextComponent(MineFactProgressMod.PREFIX + ChatColor.GRAY + "Projects were set");
+        p.sendMessage(text, Util.DUMMY_UUID);
 
         //Send Discord Webhook
         DiscordWebhook webhook = new DiscordWebhook("https://discord.com/api/webhooks/857708669571170344/-KhCDHtUp6ECZAtumEjsUiUlf6sg8DsmYCq_dbM047ifRpENjOwroOPGWvzhh8jGVEYn");
