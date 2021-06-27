@@ -45,7 +45,7 @@ public class ClientChatReceived {
             json.put("projects", projects);
 
             //API Request
-            APIRequestHandler.doPOSTRequest("https://gefsn.sse.codesandbox.io/api/projects", json);
+            APIRequestHandler.doPOSTRequest("https://gefsn.sse.codesandbox.io/api/projects/edit", json);
             try {
                 //Send Discord Webhook
                 DiscordWebhook webhook = new DiscordWebhook("https://discord.com/api/webhooks/857708669571170344/-KhCDHtUp6ECZAtumEjsUiUlf6sg8DsmYCq_dbM047ifRpENjOwroOPGWvzhh8jGVEYn");
