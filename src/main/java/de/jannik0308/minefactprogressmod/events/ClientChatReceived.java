@@ -6,16 +6,22 @@ import de.jannik0308.minefactprogressmod.utils.api.JSONBuilder;
 import de.jannik0308.minefactprogressmod.utils.chat.ChatColor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.ArmorStandEntity;
 import net.minecraft.util.Util;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
+import net.minecraft.world.World;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+
+import java.util.List;
 
 public class ClientChatReceived {
 
     @SubscribeEvent
-    public void onCommand(ClientChatReceivedEvent e) {
+    public void onChatReceived(ClientChatReceivedEvent e) {
         String msg = e.getMessage().getString();
         ClientPlayerEntity p = Minecraft.getInstance().player;
 
@@ -25,6 +31,7 @@ public class ClientChatReceived {
             try {
                 int count = Integer.parseInt(countStr);
                 setProjectsAsync(count, p);
+                setLeaderboardAsync(p);
             } catch (NumberFormatException ignored) {}
         }
     }
@@ -45,5 +52,56 @@ public class ClientChatReceived {
             }
         });
         thread.start();
+    }
+
+    private void setLeaderboardAsync(ClientPlayerEntity p) {
+        if(p == null) return;
+
+        //Async Thread
+        Thread thread = new Thread(() -> {
+            List<Entity> entities = getArmorStands(p.world, p.getPosX(), p.getPosZ(), 20);
+            if(entities.isEmpty()) return;
+
+            if(entities.get(0).getName().getString().contains("LIFETIME")) {
+                try {
+                    Thread.sleep(10000);
+                    setLeaderboardAsync(p);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            } else if(entities.get(0).getName().getString().contains("WEEKLY")) {
+                String[] names = new String[5];
+
+                for(int i = 3; i <= 7; i++) {
+                    String[] parts = entities.get(i).getName().getString().split("-");
+                    String name = parts[1].replace(" ", "")
+                                          .replace("\u00A77", "")
+                                          .replace("\u00A7a", "");
+
+                    names[i-3] = name;
+                }
+
+                //Build JSON
+                JSONBuilder json = new JSONBuilder();
+                json.put("token", "dev");
+                json.put("first", names[0]);
+                json.put("seccond", names[1]);
+                json.put("third", names[2]);
+                json.put("fourth", names[3]);
+                json.put("fifth", names[4]);
+
+                //API Request
+                APIRequestHandler.doPOSTRequest("https://gefsn.sse.codesandbox.io/api/event/leaderboard/set", json);
+
+                //Send Message to Player
+                ITextComponent text = new StringTextComponent(MineFactProgressMod.PREFIX + ChatColor.GRAY + "Leaderboard synchronized");
+                p.sendMessage(text, Util.DUMMY_UUID);
+            }
+        });
+        thread.start();
+    }
+
+    private List<Entity> getArmorStands(World w, double x, double z, int radius) {
+        return w.getEntitiesWithinAABB(ArmorStandEntity.class, new AxisAlignedBB(x,0,z,x+1,257,z+1).grow(radius));
     }
 }
