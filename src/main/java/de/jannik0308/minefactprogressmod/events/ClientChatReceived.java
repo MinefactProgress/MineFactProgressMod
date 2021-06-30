@@ -6,6 +6,7 @@ import de.jannik0308.minefactprogressmod.utils.api.JSONBuilder;
 import de.jannik0308.minefactprogressmod.utils.chat.ChatColor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ArmorStandEntity;
 import net.minecraft.util.Util;
@@ -22,6 +23,9 @@ public class ClientChatReceived {
 
     @SubscribeEvent
     public void onChatReceived(ClientChatReceivedEvent e) {
+        ServerData serverData = Minecraft.getInstance().getCurrentServerData();
+        if(serverData == null || !serverData.serverName.equals("Build The Earth")) return;
+
         String msg = e.getMessage().getString();
         ClientPlayerEntity p = Minecraft.getInstance().player;
 
