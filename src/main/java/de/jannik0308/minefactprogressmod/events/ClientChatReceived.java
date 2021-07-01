@@ -23,9 +23,6 @@ public class ClientChatReceived {
 
     @SubscribeEvent
     public void onChatReceived(ClientChatReceivedEvent e) {
-        ServerData serverData = Minecraft.getInstance().getCurrentServerData();
-        if(serverData == null || !serverData.serverName.equals("Build The Earth")) return;
-
         String msg = e.getMessage().getString();
         ClientPlayerEntity p = Minecraft.getInstance().player;
 
@@ -73,7 +70,7 @@ public class ClientChatReceived {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-            } else if(entities.get(0).getName().getString().contains("WEEKLY")) {
+            } else if(entities.get(0).getName().getString().contains("MONTHLY")) {
                 String[] names = new String[5];
 
                 for(int i = 3; i <= 7; i++) {
