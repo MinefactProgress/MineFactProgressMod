@@ -1,12 +1,12 @@
 package de.jannik0308.minefactprogressmod.events;
 
 import de.jannik0308.minefactprogressmod.MineFactProgressMod;
+import de.jannik0308.minefactprogressmod.utils.ProgressUtils;
 import de.jannik0308.minefactprogressmod.utils.api.APIRequestHandler;
 import de.jannik0308.minefactprogressmod.utils.api.JSONBuilder;
 import de.jannik0308.minefactprogressmod.utils.chat.ChatColor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ArmorStandEntity;
 import net.minecraft.util.Util;
@@ -23,17 +23,24 @@ public class ClientChatReceived {
 
     @SubscribeEvent
     public void onChatReceived(ClientChatReceivedEvent e) {
+        if(!ProgressUtils.isOnBTEnet()) return;
+
         String msg = e.getMessage().getString();
         ClientPlayerEntity p = Minecraft.getInstance().player;
+        String connectedServer = ProgressUtils.getConnectedServer();
 
-        //Set Project Count
-        if(msg.startsWith("Total Finished Projects: ")) {
-            String countStr = msg.replace("Total Finished Projects: ", "");
-            try {
-                int count = Integer.parseInt(countStr);
-                setProjectsAsync(count, p);
-                setLeaderboardAsync(p);
-            } catch (NumberFormatException ignored) {}
+        //Building Server NYC
+        if(connectedServer.startsWith("Building") && connectedServer.contains("NYC")) {
+            //Set Project Count
+            if (msg.startsWith("Total Finished Projects: ")) {
+                String countStr = msg.replace("Total Finished Projects: ", "");
+                try {
+                    int count = Integer.parseInt(countStr);
+                    setProjectsAsync(count, p);
+                    setLeaderboardAsync(p);
+                } catch (NumberFormatException ignored) {
+                }
+            }
         }
     }
 
