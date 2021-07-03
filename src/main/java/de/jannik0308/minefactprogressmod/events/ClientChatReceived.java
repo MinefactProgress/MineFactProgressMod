@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.ArmorStandEntity;
+import net.minecraft.util.StringUtils;
 import net.minecraft.util.Util;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.text.ITextComponent;
@@ -81,12 +82,19 @@ public class ClientChatReceived {
                 String[] names = new String[5];
 
                 for(int i = 3; i <= 7; i++) {
-                    String[] parts = entities.get(i).getName().getString().split("-");
-                    String name = parts[1].replace(" ", "")
-                                          .replace("\u00A77", "")
-                                          .replace("\u00A7a", "");
+                    String[] parts = StringUtils.stripControlCodes(entities.get(i).getName().getString()).split("-");
+                    // Add names
+                    String name = parts[1].replace(" ", "").replace("(!)", "");
 
-                    names[i-3] = name;
+                    // Add points
+                    String temp = parts[2].replace(" ", "");
+                    StringBuilder points = new StringBuilder();
+                    for(int j = 0; j < temp.length(); j++) {
+                        if(temp.charAt(j) == '|') break;
+                        points.append(temp.charAt(j));
+                    }
+
+                    names[i-3] = name + " | " + points.toString().replace("Points", " Points");
                 }
 
                 //Build JSON
