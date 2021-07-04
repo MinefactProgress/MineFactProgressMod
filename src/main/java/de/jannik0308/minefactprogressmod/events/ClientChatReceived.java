@@ -28,7 +28,7 @@ public class ClientChatReceived {
 
         String msg = e.getMessage().getString();
         ClientPlayerEntity p = Minecraft.getInstance().player;
-        String connectedServer = ProgressUtils.getConnectedServer();
+        String connectedServer = ProgressUtils.getConnectedBTEServer();
 
         //Building Server NYC
         if(connectedServer.startsWith("Building") && connectedServer.contains("NYC")) {
