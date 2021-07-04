@@ -32,7 +32,7 @@ public class ProgressUtils {
         }
     }
 
-    public static String getConnectedServer() {
+    public static String getConnectedBTEServer() {
         if(getTablistHeader() == null || !isOnBTEnet()) return "";
 
         String connectedServer = getTablistHeader().replace(" ", "")
