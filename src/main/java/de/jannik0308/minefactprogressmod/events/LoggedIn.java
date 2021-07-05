@@ -13,14 +13,22 @@ public class LoggedIn {
     public void onJoin(ClientPlayerNetworkEvent.LoggedInEvent e) {
         if(Minecraft.getInstance().player != null) {
             ClientPlayerEntity p = Minecraft.getInstance().player;
-            if(ProgressUtils.getConnectedBTEServer().equals("NewYorkCity")) {
-                if(SettingsConfig.enableAutoGamemode.get()) {
-                    p.sendChatMessage("/gamemode creative");
+            new Thread(() -> {
+                try {
+                    Thread.sleep(500);
+                    if(ProgressUtils.getConnectedBTEServer().equals("NewYorkCity")) {
+                        if(SettingsConfig.enableAutoGamemode.get()) {
+                            p.sendChatMessage("/gamemode creative");
+                        }
+                        if(SettingsConfig.enableAutoSpeed.get()) {
+                            p.sendChatMessage("/speed 10");
+                        }
+                    }
+                } catch (InterruptedException ex) {
+                    ex.printStackTrace();
                 }
-                if(SettingsConfig.enableAutoSpeed.get()) {
-                    p.sendChatMessage("/speed 10");
-                }
-            }
+            }).start();
+
         }
     }
 }
