@@ -20,8 +20,8 @@ public class LoggedIn {
                         if(SettingsConfig.enableAutoGamemode.get()) {
                             p.sendChatMessage("/gamemode creative");
                         }
-                        if(SettingsConfig.enableAutoSpeed.get()) {
-                            p.sendChatMessage("/speed 10");
+                        if(SettingsConfig.autoSpeedValue.get() != 1) {
+                            p.sendChatMessage("/speed " + SettingsConfig.autoSpeedValue.get());
                         }
                     }
                 } catch (InterruptedException ex) {
