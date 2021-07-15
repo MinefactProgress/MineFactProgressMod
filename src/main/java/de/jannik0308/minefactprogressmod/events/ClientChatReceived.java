@@ -5,6 +5,7 @@ import de.jannik0308.minefactprogressmod.utils.ProgressUtils;
 import de.jannik0308.minefactprogressmod.utils.api.APIRequestHandler;
 import de.jannik0308.minefactprogressmod.utils.api.JSONBuilder;
 import de.jannik0308.minefactprogressmod.utils.chat.ChatColor;
+import de.jannik0308.minefactprogressmod.utils.scanmap.Coordinate;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
@@ -22,13 +23,31 @@ import java.util.List;
 
 public class ClientChatReceived {
 
+    public static int addingPointsCounter = 0;
+
     @SubscribeEvent
     public void onChatReceived(ClientChatReceivedEvent e) {
         if(!ProgressUtils.isOnBTEnet()) return;
 
         String msg = e.getMessage().getString();
+        String msgWithoutColorCodes = StringUtils.stripControlCodes(msg);
         ClientPlayerEntity p = Minecraft.getInstance().player;
         String connectedServer = ProgressUtils.getConnectedBTEServer();
+
+        //Check if player is adding a point for the scanmap
+        if(addingPointsCounter > 0) {
+            e.setCanceled(true);
+
+            if(msgWithoutColorCodes.startsWith("Latitude: ")) {
+                String latlong = msgWithoutColorCodes.replace("Latitude: ", "")
+                        .replace(" Longitude: ", "")
+                        .replace(" (Click to copy)", "");
+                Coordinate coord = new Coordinate(latlong.split(",")[0], latlong.split(",")[1]);
+                ClientChat.coordinates.add(coord);
+                ProgressUtils.sendPlayerMessage(MineFactProgressMod.PREFIX + ChatColor.GRAY + "Added point " + ChatColor.YELLOW + "#" + ClientChat.coordinates.size() + ChatColor.GRAY + " to the selection (" + ChatColor.YELLOW + latlong + ChatColor.GRAY + ")");
+            }
+            addingPointsCounter--;
+        }
 
         //Building Server NYC
         if(connectedServer.startsWith("Building") && connectedServer.contains("NYC")) {

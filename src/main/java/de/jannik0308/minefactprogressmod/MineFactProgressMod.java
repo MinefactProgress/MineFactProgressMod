@@ -1,9 +1,7 @@
 package de.jannik0308.minefactprogressmod;
 
 import de.jannik0308.minefactprogressmod.config.Config;
-import de.jannik0308.minefactprogressmod.events.ClientChatReceived;
-import de.jannik0308.minefactprogressmod.events.LoggedIn;
-import de.jannik0308.minefactprogressmod.events.PlayerExecuteCommandEvent;
+import de.jannik0308.minefactprogressmod.events.*;
 import de.jannik0308.minefactprogressmod.utils.chat.ChatColor;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
@@ -65,6 +63,7 @@ public class MineFactProgressMod {
         MinecraftForge.EVENT_BUS.register(new PlayerExecuteCommandEvent());
         MinecraftForge.EVENT_BUS.register(new ClientChatReceived());
         MinecraftForge.EVENT_BUS.register(new LoggedIn());
+        MinecraftForge.EVENT_BUS.register(new ClientChat());
     }
 
     private void doClientStuff(final FMLClientSetupEvent event) {
