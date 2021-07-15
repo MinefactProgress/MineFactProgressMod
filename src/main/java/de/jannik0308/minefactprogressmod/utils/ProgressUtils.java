@@ -1,15 +1,26 @@
 package de.jannik0308.minefactprogressmod.utils;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.gui.overlay.PlayerTabOverlayGui;
 import net.minecraft.util.StringUtils;
+import net.minecraft.util.Util;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.StringTextComponent;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 import java.lang.reflect.Field;
 import java.util.List;
 
 public class ProgressUtils {
+
+    public static void sendPlayerMessage(String msg) {
+        ClientPlayerEntity p = Minecraft.getInstance().player;
+        if(p != null) {
+            ITextComponent text = new StringTextComponent(msg);
+            p.sendMessage(text, Util.DUMMY_UUID);
+        }
+    }
 
     public static boolean isOnBTEnet() {
         if(Minecraft.getInstance().isSingleplayer()) return false;
