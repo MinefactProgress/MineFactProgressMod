@@ -14,7 +14,6 @@ public class ProgressUtils {
     public static boolean isOnBTEnet() {
         if(Minecraft.getInstance().isSingleplayer()) return false;
 
-
         return getTablistHeader() != null && getTablistHeader().contains("BuildTheEarth.net");
     }
 
@@ -27,13 +26,13 @@ public class ProgressUtils {
             List<ITextComponent> siblings = text.getSiblings();
 
             return siblings.get(0).getString();
-        } catch (IllegalAccessException e) {
+        } catch (IllegalAccessException | NullPointerException e) {
             return null;
         }
     }
 
     public static String getConnectedBTEServer() {
-        if(getTablistHeader() == null || !isOnBTEnet()) return "";
+        if(!isOnBTEnet() ||getTablistHeader() == null) return "";
 
         String connectedServer = getTablistHeader().replace(" ", "")
                                                    .replace("BuildTheEarth.net", "");
