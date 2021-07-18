@@ -19,6 +19,6 @@ public class Coordinate {
 
     @Override
     public String toString() {
-        return "{\"lat\":\"" + latitude + "\",\"long\":\"" + longitude + "\"}";
+        return "\"" + latitude + ";" + longitude + "\"";
     }
 }

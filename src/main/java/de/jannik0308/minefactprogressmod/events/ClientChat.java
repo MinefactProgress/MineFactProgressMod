@@ -19,6 +19,8 @@ public class ClientChat {
 
     public static final ArrayList<Coordinate> coordinates = new ArrayList<>();
 
+    private boolean isUploading = false;
+
     @SubscribeEvent
     public void onChat(ClientChatEvent e) {
         ClientPlayerEntity p = Minecraft.getInstance().player;
@@ -72,7 +74,17 @@ public class ClientChat {
                         return;
                     }
                     if(args[1].equalsIgnoreCase("complete")) {
+                        if(isUploading) {
+                            ProgressUtils.sendPlayerMessage(MineFactProgressMod.PREFIX + ChatColor.RED + "You are currently uploading an area. Please wait until its finished");
+                            return;
+                        }
+                        if(coordinates.size() < 3) {
+                            ProgressUtils.sendPlayerMessage(MineFactProgressMod.PREFIX + ChatColor.RED + "You need to select at least 3 points");
+                            return;
+                        }
                         new Thread(() -> {
+                            isUploading = true;
+                            ProgressUtils.sendPlayerMessage(MineFactProgressMod.PREFIX + ChatColor.GRAY + "New area uploading...");
                             Coordinate[] coordsArray = new Coordinate[coordinates.size()];
                             for(int i = 0; i < coordinates.size(); i++) {
                                 coordsArray[i] = coordinates.get(i);
@@ -86,6 +98,7 @@ public class ClientChat {
 
                             ProgressUtils.sendPlayerMessage(MineFactProgressMod.PREFIX + ChatColor.GREEN + "New area created successfully");
                             coordinates.clear();
+                            isUploading = false;
                         }).start();
                         return;
                     }
