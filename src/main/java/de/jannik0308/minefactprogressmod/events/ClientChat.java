@@ -2,6 +2,8 @@ package de.jannik0308.minefactprogressmod.events;
 
 import de.jannik0308.minefactprogressmod.MineFactProgressMod;
 import de.jannik0308.minefactprogressmod.utils.ProgressUtils;
+import de.jannik0308.minefactprogressmod.utils.api.APIRequestHandler;
+import de.jannik0308.minefactprogressmod.utils.api.JSONBuilder;
 import de.jannik0308.minefactprogressmod.utils.chat.ChatColor;
 import de.jannik0308.minefactprogressmod.utils.chat.MessageBuilder;
 import de.jannik0308.minefactprogressmod.utils.scanmap.Coordinate;
@@ -40,6 +42,12 @@ public class ClientChat {
                     sendHelpMessage(1);
                     return;
                 }
+                if(args[0].equalsIgnoreCase("config")) {
+                    ProgressUtils.sendPlayerMessage(MineFactProgressMod.PREFIX + ChatColor.GRAY + "To edit the config file open your "
+                            + ChatColor.YELLOW +  ".minecraft/config folder" + ChatColor.GRAY + ". There you can find the file "
+                            + ChatColor.YELLOW + "MineFact-Progress.toml" + ChatColor.GRAY + ". In there you can edit the values of different things");
+                    return;
+                }
             }
             if(args.length == 2) {
                 if(args[0].equalsIgnoreCase("help")) {
@@ -64,11 +72,21 @@ public class ClientChat {
                         return;
                     }
                     if(args[1].equalsIgnoreCase("complete")) {
-                        //TODO send API request
+                        new Thread(() -> {
+                            Coordinate[] coordsArray = new Coordinate[coordinates.size()];
+                            for(int i = 0; i < coordinates.size(); i++) {
+                                coordsArray[i] = coordinates.get(i);
+                            }
 
-                        ProgressUtils.sendPlayerMessage("DEBUG: Send points to API");
-                        ProgressUtils.sendPlayerMessage(MineFactProgressMod.PREFIX + ChatColor.GREEN + "New area created successfully");
-                        coordinates.clear();
+                            JSONBuilder jsonBuilder = new JSONBuilder();
+                            jsonBuilder.put("token", "dev");
+                            jsonBuilder.put("points", coordsArray);
+
+                            APIRequestHandler.doPOSTRequest("https://gefsn.sse.codesandbox.io/api/scanmap/add", jsonBuilder);
+
+                            ProgressUtils.sendPlayerMessage(MineFactProgressMod.PREFIX + ChatColor.GREEN + "New area created successfully");
+                            coordinates.clear();
+                        }).start();
                         return;
                     }
                 }
@@ -83,6 +101,7 @@ public class ClientChat {
         msg.add(ChatColor.YELLOW + "/progress scanmap addPoint " + ChatColor.DARK_GRAY + "| " + ChatColor.GRAY + "Add your current location to the selection");
         msg.add(ChatColor.YELLOW + "/progress scanmap complete " + ChatColor.DARK_GRAY + "| " + ChatColor.GRAY + "Add your current selection to the scanmap on the Website");
         msg.add(ChatColor.YELLOW + "/progress scanmap clearSelection " + ChatColor.DARK_GRAY + "| " + ChatColor.GRAY + "Clear your current selection");
+        msg.add(ChatColor.YELLOW + "/progress config " + ChatColor.DARK_GRAY + "| " + ChatColor.GRAY + "Edit the config file");
 
         ProgressUtils.sendPlayerMessage(MessageBuilder.getHelpMessage(MineFactProgressMod.PREFIX, ChatColor.AQUA, msg, 8, page));
     }
