@@ -1,5 +1,8 @@
 package de.jannik0308.minefactprogressmod.utils.api;
 
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
+
 import java.lang.reflect.Array;
 import java.util.HashMap;
 import java.util.Map;
@@ -7,12 +10,24 @@ import java.util.Set;
 
 public class JSONBuilder {
 
-    private final HashMap<String, Object> map = new HashMap<>();
+    private final HashMap<String, Object> map;
+
+    public JSONBuilder() {
+        map = new HashMap<>();
+    }
+
+    public JSONBuilder(String jsonString) {
+        map = new Gson().fromJson(jsonString, new TypeToken<HashMap<String, Object>>(){}.getType());
+    }
 
     public void put(String key, Object value) {
         if(value != null) {
             map.put(key, value);
         }
+    }
+
+    public HashMap<String, Object> toHashMap() {
+        return map;
     }
 
     @Override
