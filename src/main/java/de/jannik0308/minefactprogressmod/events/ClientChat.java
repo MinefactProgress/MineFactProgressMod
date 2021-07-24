@@ -31,13 +31,13 @@ public class ClientChat {
                 return;
             }
             e.setCanceled(true);
+            Minecraft.getInstance().ingameGUI.getChatGUI().addToSentMessages(msg);
             //Check if on New York City Server
             if(!ProgressUtils.getConnectedBTEServer().equals("NewYorkCity")) {
                 ProgressUtils.sendPlayerMessage(MineFactProgressMod.PREFIX + ChatColor.RED + "You can only use this command on the New York City Server");
                 return;
             }
             String[] args = msg.replace("/progress ", "").split(" ");
-            Minecraft.getInstance().ingameGUI.getChatGUI().addToSentMessages(msg);
 
             if(args.length == 1) {
                 if(args[0].equalsIgnoreCase("help")) {
