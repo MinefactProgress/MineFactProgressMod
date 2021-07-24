@@ -1,9 +1,13 @@
 package de.jannik0308.minefactprogressmod.utils.api;
 
 import javax.net.ssl.HttpsURLConnection;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.HashMap;
 
 public class APIRequestHandler {
 
@@ -26,5 +30,28 @@ public class APIRequestHandler {
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+    }
+
+    public static HashMap<String, Object> doGETRequest(String urlString) {
+        try {
+            URL url = new URL(urlString);
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod("GET");
+
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuilder content = new StringBuilder();
+            while ((inputLine = in.readLine()) != null) {
+                content.append(inputLine);
+            }
+            in.close();
+            con.disconnect();
+
+            return new JSONBuilder(content.toString()).toHashMap();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return null;
     }
 }
