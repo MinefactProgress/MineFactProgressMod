@@ -13,6 +13,7 @@ import net.minecraftforge.client.event.ClientChatEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class ClientChat {
@@ -21,6 +22,7 @@ public class ClientChat {
 
     private boolean isUploading = false;
 
+    @SuppressWarnings("unchecked")
     @SubscribeEvent
     public void onChat(ClientChatEvent e) {
         ClientPlayerEntity p = Minecraft.getInstance().player;
@@ -85,6 +87,25 @@ public class ClientChat {
                         new Thread(() -> {
                             isUploading = true;
                             ProgressUtils.sendPlayerMessage(MineFactProgressMod.PREFIX + ChatColor.GRAY + "New area uploading...");
+
+                            //Check ID
+                            HashMap<String, Object> map = APIRequestHandler.doGETRequest(MineFactProgressMod.WEBSITE + "api/scanmap/get?token=dev");
+                            if(map == null) {
+                                ProgressUtils.sendPlayerMessage(MineFactProgressMod.PREFIX + ChatColor.RED + "Error while uploading. Please try again!");
+                                return;
+                            }
+
+                            //Get next ID
+                            ArrayList<Object> areas = (ArrayList<Object>) map.get("areas");
+                            int id = -1;
+                            for (Object area : areas) {
+                                JSONBuilder jsonBuilder = new JSONBuilder(area.toString());
+                                int currentID = (int) jsonBuilder.toHashMap().get("areaID");
+                                if (currentID > id) {
+                                    id = currentID;
+                                }
+                            }
+
                             Coordinate[] coordsArray = new Coordinate[coordinates.size()];
                             for(int i = 0; i < coordinates.size(); i++) {
                                 coordsArray[i] = coordinates.get(i);
@@ -92,11 +113,12 @@ public class ClientChat {
 
                             JSONBuilder jsonBuilder = new JSONBuilder();
                             jsonBuilder.put("token", "dev");
+                            jsonBuilder.put("id", id);
                             jsonBuilder.put("points", coordsArray);
 
                             APIRequestHandler.doPOSTRequest("https://gefsn.sse.codesandbox.io/api/scanmap/add", jsonBuilder);
 
-                            ProgressUtils.sendPlayerMessage(MineFactProgressMod.PREFIX + ChatColor.GREEN + "New area created successfully");
+                            ProgressUtils.sendPlayerMessage(MineFactProgressMod.PREFIX + ChatColor.GREEN + "Area " + ChatColor.YELLOW + "#" + id + ChatColor.GREEN + " created successfully");
                             coordinates.clear();
                             isUploading = false;
                         }).start();

@@ -14,6 +14,10 @@ import java.util.List;
 
 public class ProgressUtils {
 
+    public static ClientPlayerEntity getPlayer() {
+        return Minecraft.getInstance().player;
+    }
+
     public static void sendPlayerMessage(String msg) {
         ClientPlayerEntity p = Minecraft.getInstance().player;
         if(p != null) {
@@ -26,6 +30,12 @@ public class ProgressUtils {
         if(Minecraft.getInstance().isSingleplayer()) return false;
 
         return getTablistHeader() != null && getTablistHeader().contains("BuildTheEarth.net");
+    }
+
+    public static boolean isBuildingSession() {
+        if(!getConnectedBTEServer().equals("NewYorkCity")) return false;
+
+        return getPlayer().getHeldItemMainhand().getDisplayName().getString().contains("Session Manager");
     }
 
     public static String getTablistHeader() {
@@ -43,7 +53,7 @@ public class ProgressUtils {
     }
 
     public static String getConnectedBTEServer() {
-        if(!isOnBTEnet() ||getTablistHeader() == null) return "";
+        if(!isOnBTEnet() || getTablistHeader() == null) return "";
 
         String connectedServer = getTablistHeader().replace(" ", "")
                                                    .replace("BuildTheEarth.net", "");

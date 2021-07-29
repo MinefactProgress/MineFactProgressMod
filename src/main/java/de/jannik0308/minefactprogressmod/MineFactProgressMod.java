@@ -2,7 +2,10 @@ package de.jannik0308.minefactprogressmod;
 
 import de.jannik0308.minefactprogressmod.config.Config;
 import de.jannik0308.minefactprogressmod.events.*;
+import de.jannik0308.minefactprogressmod.utils.api.APIRequestHandler;
+import de.jannik0308.minefactprogressmod.utils.api.JSONBuilder;
 import de.jannik0308.minefactprogressmod.utils.chat.ChatColor;
+import de.jannik0308.minefactprogressmod.utils.scanmap.Coordinate;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraftforge.common.MinecraftForge;
@@ -22,6 +25,8 @@ import net.minecraftforge.fml.loading.FMLPaths;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 
 // The value here should match an entry in the META-INF/mods.toml file
@@ -30,6 +35,7 @@ public class MineFactProgressMod {
 
     public static final String MOD_ID = "minefactprogressmod";
     public static final String PREFIX = ChatColor.GRAY + "[" + ChatColor.AQUA + "MineFact Progress" + ChatColor.GRAY + "] " + ChatColor.RESET;
+    public static final String WEBSITE = "https://gefsn.sse.codesandbox.io/";
 
     // Directly reference a log4j logger.
     public static final Logger LOGGER = LogManager.getLogger();
@@ -60,7 +66,6 @@ public class MineFactProgressMod {
         LOGGER.info("DIRT BLOCK >> {}", Blocks.DIRT.getRegistryName());
 
         // Register Events
-        MinecraftForge.EVENT_BUS.register(new PlayerExecuteCommandEvent());
         MinecraftForge.EVENT_BUS.register(new ClientChatReceived());
         MinecraftForge.EVENT_BUS.register(new LoggedIn());
         MinecraftForge.EVENT_BUS.register(new ClientChat());
@@ -102,5 +107,26 @@ public class MineFactProgressMod {
             // register a new block here
             LOGGER.info("HELLO from Register Block");
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public static void main(String[] args) {
+//        HashMap<String, Object> map = APIRequestHandler.doGETRequest("https://gefsn.sse.codesandbox.io/api/scanmap/get?token=dev");
+//
+//        ArrayList<Object> o = (ArrayList<Object>) map.get("areas");
+//
+//        JSONBuilder jsonBuilder = new JSONBuilder(o.get(0).toString());
+//        ArrayList<Object> o2 = (ArrayList<Object>) jsonBuilder.toHashMap().get("coords");
+//
+//        System.out.println(map);
+//        System.out.println(o.get(0));
+//        System.out.println(o2);
+        Coordinate[] coordsArray = {new Coordinate("1", "1"),new Coordinate("2", "2")};
+        JSONBuilder jsonBuilder = new JSONBuilder();
+        jsonBuilder.put("token", "dev");
+        jsonBuilder.put("id", 3);
+        jsonBuilder.put("points", coordsArray);
+
+        APIRequestHandler.doPOSTRequest("https://gefsn.sse.codesandbox.io/api/scanmap/add", jsonBuilder);
     }
 }

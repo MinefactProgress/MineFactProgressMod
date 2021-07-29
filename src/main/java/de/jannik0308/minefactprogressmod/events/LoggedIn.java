@@ -17,6 +17,9 @@ public class LoggedIn {
                 try {
                     Thread.sleep(500);
                     if(ProgressUtils.getConnectedBTEServer().equals("NewYorkCity")) {
+                        if(ProgressUtils.isBuildingSession()) {
+                            p.sendChatMessage("/fly");
+                        }
                         if(SettingsConfig.enableAutoGamemode.get()) {
                             p.sendChatMessage("/gamemode creative");
                         }
