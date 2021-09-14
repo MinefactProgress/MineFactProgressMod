@@ -18,10 +18,15 @@ import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ClientChatReceived {
 
     public static int addingPointsCounter = 0;
+
+    private double leaderboardX = -299.5d;
+    private double leaderboardZ = -296.5d;
+    private int leaderboardRadius = 1;
 
     @SubscribeEvent
     public void onChatReceived(ClientChatReceivedEvent e) {
@@ -83,55 +88,80 @@ public class ClientChatReceived {
     private void setLeaderboardAsync(LocalPlayer p) {
         if(p == null) return;
 
+        AtomicReference<Level> world = new AtomicReference<>(p.level);
+        AtomicReference<Double> x = new AtomicReference<>(leaderboardX);
+        AtomicReference<Double> z = new AtomicReference<>(leaderboardZ);
+        AtomicReference<Integer> radius = new AtomicReference<>(leaderboardRadius);
+
         //Async Thread
         Thread thread = new Thread(() -> {
-            List<ArmorStand> entities = getArmorStands(p.level, p.getX(), p.getZ(), 20);
-            if(entities.isEmpty()) return;
+            List<ArmorStand> entities = getArmorStands(world.get(), x.get(), z.get(), radius.get());
+            if(entities.isEmpty()) {
+                world.set(p.level);
+                x.set(p.getX());
+                z.set(p.getZ());
+                radius.set(30);
+                entities = getArmorStands(world.get(), x.get(), z.get(), radius.get());
+
+                if(entities.isEmpty()) return;
+            }
 
             if(entities.get(0).getName().getString().contains("LIFETIME")) {
                 try {
+                    setLeaderboardAsync(p, entities, "Lifetime");
                     Thread.sleep(10000);
-                    setLeaderboardAsync(p);
+                    setLeaderboardAsync(p, getArmorStands(world.get(), x.get(), z.get(), radius.get()), "Weekly");
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             } else if(entities.get(0).getName().getString().contains("WEEKLY")) {
-                String[] names = new String[5];
-
-                for(int i = 3; i <= 7; i++) {
-                    String[] parts = StringUtil.stripColor(entities.get(i).getName().getString()).split("-");
-                    // Add names
-                    String name = parts[1].replace(" ", "").replace("(!)", "");
-
-                    // Add points
-                    String temp = parts[2].replace(" ", "");
-                    StringBuilder points = new StringBuilder();
-                    for(int j = 0; j < temp.length(); j++) {
-                        if(temp.charAt(j) == '|') break;
-                        points.append(temp.charAt(j));
-                    }
-
-                    names[i-3] = name + " | " + points.toString().replace("Points", " Points");
+                try {
+                    setLeaderboardAsync(p, entities, "Weekly");
+                    Thread.sleep(10000);
+                    setLeaderboardAsync(p, getArmorStands(world.get(), x.get(), z.get(), radius.get()), "Lifetime");
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-
-                //Build JSON
-                JSONBuilder json = new JSONBuilder();
-                json.put("token", "dev");
-                json.put("first", names[0]);
-                json.put("seccond", names[1]);
-                json.put("third", names[2]);
-                json.put("fourth", names[3]);
-                json.put("fifth", names[4]);
-
-                //API Request
-                APIRequestHandler.doPOSTRequest("https://gefsn.sse.codesandbox.io/api/event/leaderboard/set", json);
-
-                //Send Message to Player
-                TextComponent text = new TextComponent(MineFactProgressMod.PREFIX + ChatColor.GRAY + "Leaderboard synchronized");
-                p.sendMessage(text, Util.NIL_UUID);
             }
         });
         thread.start();
+    }
+
+    private void setLeaderboardAsync(LocalPlayer p, List<ArmorStand> entities, String type) {
+        String[] names = new String[5];
+
+        for(int i = 3; i <= 7; i++) {
+            String[] parts = StringUtil.stripColor(entities.get(i).getName().getString()).split("-");
+            // Add names
+            String name = parts[1].replace(" ", "").replace("(!)", "");
+
+            // Add points
+            String temp = parts[2].replace(" ", "");
+            StringBuilder points = new StringBuilder();
+            for(int j = 0; j < temp.length(); j++) {
+                if(temp.charAt(j) == '|') break;
+                points.append(temp.charAt(j));
+            }
+
+            names[i-3] = name + " | " + points.toString().replace("Points", " Points");
+        }
+
+        //Build JSON
+        JSONBuilder json = new JSONBuilder();
+        json.put("token", "dev");
+        json.put("first", names[0]);
+        json.put("seccond", names[1]);
+        json.put("third", names[2]);
+        json.put("fourth", names[3]);
+        json.put("fifth", names[4]);
+        json.put("type", type);
+
+        //API Request
+        APIRequestHandler.doPOSTRequest("https://gefsn.sse.codesandbox.io/api/event/leaderboard/set", json);
+
+        //Send Message to Player
+        TextComponent text = new TextComponent(MineFactProgressMod.PREFIX + ChatColor.YELLOW + type + ChatColor.GRAY + " Leaderboard synchronized");
+        p.sendMessage(text, Util.NIL_UUID);
     }
 
     private List<ArmorStand> getArmorStands(Level world, double x, double z, int radius) {
