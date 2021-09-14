@@ -6,16 +6,14 @@ import de.jannik0308.minefactprogressmod.utils.api.APIRequestHandler;
 import de.jannik0308.minefactprogressmod.utils.api.JSONBuilder;
 import de.jannik0308.minefactprogressmod.utils.chat.ChatColor;
 import de.jannik0308.minefactprogressmod.utils.scanmap.Coordinate;
+import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.ArmorStandEntity;
-import net.minecraft.util.StringUtils;
-import net.minecraft.util.Util;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.util.StringUtil;
+import net.minecraft.world.entity.decoration.ArmorStand;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -30,8 +28,8 @@ public class ClientChatReceived {
         if(!ProgressUtils.isOnBTEnet()) return;
 
         String msg = e.getMessage().getString();
-        String msgWithoutColorCodes = StringUtils.stripControlCodes(msg);
-        ClientPlayerEntity p = Minecraft.getInstance().player;
+        String msgWithoutColorCodes = StringUtil.stripColor(msg);
+        LocalPlayer p = Minecraft.getInstance().player;
         String connectedServer = ProgressUtils.getConnectedBTEServer();
 
         //Check if player is adding a point for the scanmap
@@ -64,7 +62,7 @@ public class ClientChatReceived {
         }
     }
 
-    private void setProjectsAsync(int projects, ClientPlayerEntity p) {
+    private void setProjectsAsync(int projects, LocalPlayer p) {
         //POST Request to API
         Thread thread = new Thread(() -> {
             //Build JSON
@@ -75,19 +73,19 @@ public class ClientChatReceived {
             //API Request
             APIRequestHandler.doPOSTRequest("https://gefsn.sse.codesandbox.io/api/projects/edit", json);
             if(p != null) {
-                ITextComponent text = new StringTextComponent(MineFactProgressMod.PREFIX + ChatColor.GRAY + "Projects set to " + ChatColor.YELLOW + projects);
-                p.sendMessage(text, Util.DUMMY_UUID);
+                TextComponent text = new TextComponent(MineFactProgressMod.PREFIX + ChatColor.GRAY + "Projects set to " + ChatColor.YELLOW + projects);
+                p.sendMessage(text, Util.NIL_UUID);
             }
         });
         thread.start();
     }
 
-    private void setLeaderboardAsync(ClientPlayerEntity p) {
+    private void setLeaderboardAsync(LocalPlayer p) {
         if(p == null) return;
 
         //Async Thread
         Thread thread = new Thread(() -> {
-            List<Entity> entities = getArmorStands(p.world, p.getPosX(), p.getPosZ(), 20);
+            List<ArmorStand> entities = getArmorStands(p.level, p.getX(), p.getZ(), 20);
             if(entities.isEmpty()) return;
 
             if(entities.get(0).getName().getString().contains("LIFETIME")) {
@@ -97,11 +95,11 @@ public class ClientChatReceived {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-            } else if(entities.get(0).getName().getString().contains("MONTHLY")) {
+            } else if(entities.get(0).getName().getString().contains("WEEKLY")) {
                 String[] names = new String[5];
 
                 for(int i = 3; i <= 7; i++) {
-                    String[] parts = StringUtils.stripControlCodes(entities.get(i).getName().getString()).split("-");
+                    String[] parts = StringUtil.stripColor(entities.get(i).getName().getString()).split("-");
                     // Add names
                     String name = parts[1].replace(" ", "").replace("(!)", "");
 
@@ -129,14 +127,14 @@ public class ClientChatReceived {
                 APIRequestHandler.doPOSTRequest("https://gefsn.sse.codesandbox.io/api/event/leaderboard/set", json);
 
                 //Send Message to Player
-                ITextComponent text = new StringTextComponent(MineFactProgressMod.PREFIX + ChatColor.GRAY + "Leaderboard synchronized");
-                p.sendMessage(text, Util.DUMMY_UUID);
+                TextComponent text = new TextComponent(MineFactProgressMod.PREFIX + ChatColor.GRAY + "Leaderboard synchronized");
+                p.sendMessage(text, Util.NIL_UUID);
             }
         });
         thread.start();
     }
 
-    private List<Entity> getArmorStands(World w, double x, double z, int radius) {
-        return w.getEntitiesWithinAABB(ArmorStandEntity.class, new AxisAlignedBB(x,0,z,x+1,257,z+1).grow(radius));
+    private List<ArmorStand> getArmorStands(Level world, double x, double z, int radius) {
+        return world.getEntitiesOfClass(ArmorStand.class, new AABB(x,0,z,x+1,257,z+1).inflate(radius));
     }
 }

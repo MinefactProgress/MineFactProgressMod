@@ -2,12 +2,9 @@ package de.jannik0308.minefactprogressmod;
 
 import de.jannik0308.minefactprogressmod.config.Config;
 import de.jannik0308.minefactprogressmod.events.*;
-import de.jannik0308.minefactprogressmod.utils.api.APIRequestHandler;
-import de.jannik0308.minefactprogressmod.utils.api.JSONBuilder;
 import de.jannik0308.minefactprogressmod.utils.chat.ChatColor;
-import de.jannik0308.minefactprogressmod.utils.scanmap.Coordinate;
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -15,18 +12,15 @@ import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
-import net.minecraftforge.fml.event.server.FMLServerStartingEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLPaths;
+import net.minecraftforge.fmlserverevents.FMLServerStartingEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.stream.Collectors;
 
 // The value here should match an entry in the META-INF/mods.toml file
@@ -51,7 +45,7 @@ public class MineFactProgressMod {
         // Register the processIMC method for modloading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::processIMC);
         // Register the doClientStuff method for modloading
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
+        //FMLJavaModLoadingContext.get().getModEventBus().addListener(this::doClientStuff);
 
         // Load config
         Config.loadConfig(Config.CONFIG, FMLPaths.CONFIGDIR.get().resolve("MineFact-Progress.toml").toString());
@@ -67,14 +61,14 @@ public class MineFactProgressMod {
 
         // Register Events
         MinecraftForge.EVENT_BUS.register(new ClientChatReceived());
-        MinecraftForge.EVENT_BUS.register(new LoggedIn());
-        MinecraftForge.EVENT_BUS.register(new ClientChat());
+        //MinecraftForge.EVENT_BUS.register(new LoggedIn());
+        //MinecraftForge.EVENT_BUS.register(new ClientChat());
     }
 
-    private void doClientStuff(final FMLClientSetupEvent event) {
-        // do something that can only be done on the client
-        LOGGER.info("Got game settings {}", event.getMinecraftSupplier().get().gameSettings);
-    }
+//    private void doClientStuff(final FMLClientSetupEvent event) {
+//        // do something that can only be done on the client
+//        LOGGER.info("Got game settings {}", event.getMinecraftSupplier().get().gameSettings);
+//    }
 
     private void enqueueIMC(final InterModEnqueueEvent event) {
         // some example code to dispatch IMC to another mod
@@ -107,26 +101,5 @@ public class MineFactProgressMod {
             // register a new block here
             LOGGER.info("HELLO from Register Block");
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    public static void main(String[] args) {
-//        HashMap<String, Object> map = APIRequestHandler.doGETRequest("https://gefsn.sse.codesandbox.io/api/scanmap/get?token=dev");
-//
-//        ArrayList<Object> o = (ArrayList<Object>) map.get("areas");
-//
-//        JSONBuilder jsonBuilder = new JSONBuilder(o.get(0).toString());
-//        ArrayList<Object> o2 = (ArrayList<Object>) jsonBuilder.toHashMap().get("coords");
-//
-//        System.out.println(map);
-//        System.out.println(o.get(0));
-//        System.out.println(o2);
-        Coordinate[] coordsArray = {new Coordinate("1", "1"),new Coordinate("2", "2")};
-        JSONBuilder jsonBuilder = new JSONBuilder();
-        jsonBuilder.put("token", "dev");
-        jsonBuilder.put("id", 3);
-        jsonBuilder.put("points", coordsArray);
-
-        APIRequestHandler.doPOSTRequest("https://gefsn.sse.codesandbox.io/api/scanmap/add", jsonBuilder);
     }
 }

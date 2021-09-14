@@ -8,7 +8,7 @@ import de.jannik0308.minefactprogressmod.utils.chat.ChatColor;
 import de.jannik0308.minefactprogressmod.utils.chat.MessageBuilder;
 import de.jannik0308.minefactprogressmod.utils.scanmap.Coordinate;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraftforge.client.event.ClientChatEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 
@@ -25,7 +25,7 @@ public class ClientChat {
     @SuppressWarnings("unchecked")
     @SubscribeEvent
     public void onChat(ClientChatEvent e) {
-        ClientPlayerEntity p = Minecraft.getInstance().player;
+        LocalPlayer p = Minecraft.getInstance().player;
         String msg = e.getMessage();
         if(msg.startsWith("/progress")) {
             //Check if on BTE.net
@@ -33,7 +33,9 @@ public class ClientChat {
                 return;
             }
             e.setCanceled(true);
-            Minecraft.getInstance().ingameGUI.getChatGUI().addToSentMessages(msg);
+            // TODO
+            // Minecraft.getInstance().ingameGUI.getChatGUI().addToSentMessages(msg);
+            Minecraft.getInstance().gui.getChat().addRecentChat(msg);
             //Check if on New York City Server
             if(!ProgressUtils.getConnectedBTEServer().equals("NewYorkCity")) {
                 ProgressUtils.sendPlayerMessage(MineFactProgressMod.PREFIX + ChatColor.RED + "You can only use this command on the New York City Server");
@@ -71,7 +73,9 @@ public class ClientChat {
                     if(args[1].equalsIgnoreCase("addpoint")) {
                         if(p != null) {
                             ClientChatReceived.addingPointsCounter = 5;
-                            p.sendChatMessage("/ll");
+                            // TODO
+                            //p.sendChatMessage("/ll");
+                            p.chat("/ll");
                         }
                         return;
                     }
