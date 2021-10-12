@@ -54,7 +54,7 @@ public class ProgressUtils {
             List<Component> siblings = text.getSiblings();
 
             return siblings.get(0).getString();
-        } catch (IllegalAccessException | NullPointerException e) {
+        } catch (IllegalAccessException | NullPointerException | IndexOutOfBoundsException e) {
             return null;
         }
     }
