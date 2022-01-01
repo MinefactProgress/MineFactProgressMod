@@ -146,22 +146,25 @@ public class ClientChatReceived {
             names[i-3] = name + " | " + points.toString().replace("Points", " Points");
         }
 
-        //Build JSON
-        JSONBuilder json = new JSONBuilder();
-        json.put("token", "dev");
-        json.put("first", names[0]);
-        json.put("seccond", names[1]);
-        json.put("third", names[2]);
-        json.put("fourth", names[3]);
-        json.put("fifth", names[4]);
-        json.put("type", type);
+        Thread thread = new Thread(() -> {
+            //Build JSON
+            JSONBuilder json = new JSONBuilder();
+            json.put("token", "dev");
+            json.put("first", names[0]);
+            json.put("seccond", names[1]);
+            json.put("third", names[2]);
+            json.put("fourth", names[3]);
+            json.put("fifth", names[4]);
+            json.put("type", type);
 
-        //API Request
-        APIRequestHandler.doPOSTRequest("https://gefsn.sse.codesandbox.io/api/event/leaderboard/set", json);
+            //API Request
+            APIRequestHandler.doPOSTRequest("https://gefsn.sse.codesandbox.io/api/event/leaderboard/set", json);
 
-        //Send Message to Player
-        TextComponent text = new TextComponent(MineFactProgressMod.PREFIX + ChatColor.YELLOW + type + ChatColor.GRAY + " Leaderboard synchronized");
-        p.sendMessage(text, Util.NIL_UUID);
+            //Send Message to Player
+            TextComponent text = new TextComponent(MineFactProgressMod.PREFIX + ChatColor.YELLOW + type + ChatColor.GRAY + " Leaderboard synchronized");
+            p.sendMessage(text, Util.NIL_UUID);
+        });
+        thread.start();
     }
 
     private List<ArmorStand> getArmorStands(Level world, double x, double z, int radius) {

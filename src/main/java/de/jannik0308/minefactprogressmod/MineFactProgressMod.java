@@ -4,7 +4,6 @@ import de.jannik0308.minefactprogressmod.config.Config;
 import de.jannik0308.minefactprogressmod.events.*;
 import de.jannik0308.minefactprogressmod.utils.chat.ChatColor;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -17,7 +16,6 @@ import net.minecraftforge.fml.event.lifecycle.InterModEnqueueEvent;
 import net.minecraftforge.fml.event.lifecycle.InterModProcessEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLPaths;
-import net.minecraftforge.fmlserverevents.FMLServerStartingEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -55,10 +53,6 @@ public class MineFactProgressMod {
     }
 
     private void setup(final FMLCommonSetupEvent event) {
-        // some preinit code
-        LOGGER.info("HELLO FROM PREINIT");
-        LOGGER.info("DIRT BLOCK >> {}", Blocks.DIRT.getRegistryName());
-
         // Register Events
         MinecraftForge.EVENT_BUS.register(new ClientChatReceived());
         //MinecraftForge.EVENT_BUS.register(new LoggedIn());
@@ -83,13 +77,6 @@ public class MineFactProgressMod {
         LOGGER.info("Got IMC {}", event.getIMCStream().
                 map(m -> m.getMessageSupplier().get()).
                 collect(Collectors.toList()));
-    }
-
-    // You can use SubscribeEvent and let the Event Bus discover methods to call
-    @SubscribeEvent
-    public void onServerStarting(FMLServerStartingEvent event) {
-        // do something when the server starts
-        LOGGER.info("HELLO from server starting");
     }
 
     // You can use EventBusSubscriber to automatically subscribe events on the contained class (this is subscribing to the MOD
